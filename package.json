@@ -12,7 +12,13 @@
     "astro": "astro"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@astrojs/node": "^10.0.5",
     "astro": "^6.1.2"
   }
 }
+=======
+    "astro": "^6.1.2"
+  }
+}
+>>>>>>> 680c5ab8755214f37cffe3cdcf6c35cc96e2f56a
