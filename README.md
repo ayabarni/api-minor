@@ -178,10 +178,15 @@ De focus lag minder op “het werkt”, en meer op:
 - Geëxperimenteerd met realistischere boekenplanken in plaats van simpele lijnen  
 - Scroll-driven / coverflow-achtige interacties getest voor boekenrijen  
 
----
+## Feedback
+(Omdat ik niet aanwezig kon zijn bij het voortgangsgesprek, heb ik aan feedback gevraagd:)
+### Wat ik merkte:
+- De navigatie was nog niet duidelijk  
+- De detailpagina had nog geen inhoud of functionaliteit  
+- De app werkte deels, maar voelde nog niet compleet  
+- Er ontbrak nog interactie en een duidelijke gebruikersflow  
 
 ## Boekdetailpagina uitgebreid
-- Detailpagina verder ontwikkeld van simpele boekinformatie naar rijkere ervaring  
 - 3D boekexperimenten toegevoegd met CSS:
   - rug
   - pagina’s
