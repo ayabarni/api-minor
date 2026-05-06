@@ -1,50 +1,517 @@
 ---
-import { date } from "astro:schema";
-
-// frontmatter, hier mag je js typen
-
-const url = "https://openlibrary.org/search.json?q=books";
-const response = await fetch(url);
-const data = await response.json();
-const books = data.docs;
-
+import MainLayout from "../layouts/MainLayout.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Books</title>
-	</head>
-	<body>
-	
+<MainLayout title="My Library">
+	<!-- eerste section: hero -->
+	<section class="hero">
+		<div class="hero-content">
+			<p class="eyebrow">Personal book library</p>
+			<h1>Meet your next favorite book.</h1>
 
-		<h1>Books</h1>
-		<div
-			style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;"
-		>
-			{
-				books.slice(0, 10).map((book: any) => {
-					return (
-						<a href={`/book${book.key}`}>
-							<div style="border: 1px solid #ccc; padding: 10px; margin: 10px;">
-								{book.cover_i && (
-									<img
-										src={`https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`}
-										alt={book.title}
-										style="width: 100%; height:auto"
-									/>
-								)}
-								<h2>{book.title}</h2>
-								<p>{book.author_name?.[0]}</p>
-							</div>
-						</a>
-					);
-				})
-			}
+			<form class="search-form" action="/search" method="GET">
+				<input
+					type="search"
+					name="q"
+					placeholder="Title, author, or topic"
+				/>
+				<button type="submit">Search</button>
+			</form>
+
+			<div class="genre-links">
+				<a href="/search?subject=romance">Romance</a>
+				<a href="/search?subject=fantasy">Fantasy</a>
+				<a href="/search?subject=history">History</a>
+				<a href="/search?subject=classics">Classics</a>
+			</div>
 		</div>
-	</body>
-</html>
+	</section>
+
+	<!--tweede section: cntinue-section -->
+	<section class="continue-section reveal">
+		<h2>Continue reading</h2>
+		<div id="continue-reading"></div>
+	</section>
+
+	<!--derde section: currently-reading -->
+	<section class="shelf-section reveal">
+		<h2>Currently reading</h2>
+		<div id="currently-reading" class="shelf-row"></div>
+		<div class="shelf-line"></div>
+	</section>
+
+	<!--verde section: want-to-read -->
+	<section class="shelf-section reveal">
+		<h2>Want to read</h2>
+		<div id="want-to-read" class="shelf-row"></div>
+		<div class="shelf-line"></div>
+	</section>
+
+	<!--vijfde section: read -->
+	<section class="shelf-section reveal">
+		<h2>Read</h2>
+		<div id="read" class="shelf-row"></div>
+		<div class="shelf-line"></div>
+	</section>
+
+	<!-- java script -->
+	<script>
+		type ShelfBook = {
+			key: string;
+			title: string;
+			cover_i?: number;
+			author_name?: string[];
+			shelf: string;
+		};
+
+		const shelfBooks: ShelfBook[] = JSON.parse(
+			localStorage.getItem("shelfBooks") || "[]",
+		);
+		const continueContainer = document.getElementById("continue-reading");
+		if (continueContainer) {
+			const currentBooks = shelfBooks.filter(
+				(book: ShelfBook) => book.shelf === "currently-reading",
+			);
+			const lastCurrentBook = currentBooks[currentBooks.length - 1];
+
+			if (!lastCurrentBook) {
+				continueContainer.innerHTML = `<p class="empty-shelf">No current book yet.</p>`;
+			} else {
+				continueContainer.innerHTML = `
+                 <a class="continue-card" href="/book${lastCurrentBook.key}">
+                  ${
+						lastCurrentBook.cover_i
+							? `<img
+                        src="https://covers.openlibrary.org/b/id/${lastCurrentBook.cover_i}-M.jpg"
+                        alt="Cover of ${lastCurrentBook.title}"
+                       />`
+							: `<div class="continue-placeholder">No cover</div>`
+					}
+
+                 <div>
+                      <p class="continue-label">Currently reading</p>
+                      <h3>${lastCurrentBook.title}</h3>
+                      <p>${lastCurrentBook.author_name?.[0] || "Unknown author"}</p>
+                 </div>
+                </a>
+             `;
+			}
+		}
+
+		const shelves = [
+			{ id: "currently-reading", label: "currently-reading" },
+			{ id: "want-to-read", label: "want-to-read" },
+			{ id: "read", label: "read" },
+		];
+
+		shelves.forEach((shelfInfo) => {
+			const container = document.getElementById(shelfInfo.id);
+
+			if (!container) return;
+
+			const filteredBooks = shelfBooks.filter(
+				(book: ShelfBook) => book.shelf === shelfInfo.label,
+			);
+
+			if (filteredBooks.length === 0) {
+				container.innerHTML = `<p class="empty-shelf">No books here yet.</p>`;
+				return;
+			}
+
+			container.innerHTML = filteredBooks
+				.map(
+					(book: ShelfBook, index: number) => `
+      <article class="shelf-book" style="--i: ${index}">
+        <a class="shelf-book__link" href="/book${book.key}" title="${book.title}">
+          ${
+				book.cover_i
+					? `<img
+                  class="shelf-book__cover"
+                  src="https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg"
+                  alt="Cover of ${book.title}"
+                />`
+					: `<div class="shelf-book__cover shelf-book__placeholder">
+                  <span>No cover</span>
+                </div>`
+			}
+        </a>
+      </article>
+    `,
+				)
+				.join("");
+		});
+
+		const revealElements = document.querySelectorAll(".reveal");
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						entry.target.classList.add("is-visible");
+					}
+				});
+			},
+			{
+				threshold: 0.15,
+			},
+		);
+
+		revealElements.forEach((element) => observer.observe(element));
+	</script>
+
+	<style>
+		.hero {
+			min-height: 32rem;
+			border-radius: 1.5rem;
+			overflow: hidden;
+			margin-bottom: 3rem;
+			background:
+				linear-gradient(rgba(40, 25, 15, 0.45), rgba(40, 25, 15, 0.7)),
+				url("images/book1.jpg");
+			background-size: cover;
+			background-position: center;
+			color: white;
+		}
+
+		.hero-content {
+			min-height: 32rem;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			padding: 1.25rem;
+		}
+
+		.eyebrow {
+			margin: 0 0 0.5rem;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			font-size: 0.8rem;
+			opacity: 0.85;
+		}
+
+		.hero h1 {
+			margin: 0 0 0.75rem;
+			font-size: clamp(2.4rem, 12vw, 4.5rem);
+			line-height: 0.95;
+			max-width: 9ch;
+		}
+
+		.hero-text {
+			margin: 0 0 1.25rem;
+			max-width: 28rem;
+			line-height: 1.5;
+			opacity: 0.9;
+		}
+
+		.search-form {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 0.75rem;
+		}
+
+		.search-form input {
+			width: 100%;
+			padding: 1rem 1.1rem;
+			border-radius: 999px;
+			border: none;
+			font: inherit;
+		}
+
+		.search-form button {
+			padding: 1rem 1.2rem;
+			border-radius: 999px;
+			border: none;
+			background: #ff6b2c;
+			color: white;
+			font: inherit;
+			font-weight: 700;
+			cursor: pointer;
+		}
+
+		.genre-links {
+			display: flex;
+			gap: 0.6rem;
+			overflow-x: auto;
+			margin-top: 1.5rem;
+			/* padding-bottom: 0.25rem; */
+			padding: 0.5rem 0 1rem;
+		}
+
+		.genre-links a {
+			flex: 0 0 auto;
+			padding: 0.6rem 0.95rem;
+			border-radius: 999px;
+			background: rgb(249 233 196 / 38%);
+			box-shadow:
+				rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+				rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+			color: white;
+			text-decoration: none;
+			backdrop-filter: blur(8px);
+			font-size: 0.9rem;
+			transition: all 0.25s ease;
+		}
+		.genre-links a:hover {
+			background: #ff6b2c;
+			transform: translateY(-2px);
+		}
+
+		@media (min-width: 48rem) {
+			.hero-content {
+				padding: 2rem;
+			}
+
+			.search-form {
+				grid-template-columns: 1fr auto;
+				max-width: 42rem;
+			}
+		}
+
+		.shelf-section {
+			margin-top: 5rem;
+		}
+
+		.shelf-section h2 {
+			margin-bottom: 1rem;
+		}
+
+		:global(.shelf-row) {
+			display: grid;
+			grid-auto-flow: column;
+			grid-auto-columns: clamp(5.5rem, 28vw, 8rem);
+			gap: 0.5rem;
+			overflow-x: auto;
+			overflow-y: visible;
+			padding: 3rem 2rem 1rem;
+			align-items: end;
+			scroll-snap-type: x mandatory;
+			perspective: 40rem;
+		}
+		@keyframes adjust-z-index {
+			0%,
+			100% {
+				z-index: 1;
+			}
+
+			50% {
+				z-index: 20;
+			}
+		}
+
+		@keyframes cover-flow {
+			0% {
+				transform: translateX(-45%) rotateY(-55deg) scale(0.85);
+			}
+
+			35% {
+				transform: translateX(0) rotateY(-35deg) scale(0.95);
+			}
+
+			50% {
+				transform: rotateY(0deg) translateZ(2rem) scale(1.25);
+			}
+
+			65% {
+				transform: translateX(0) rotateY(35deg) scale(0.95);
+			}
+
+			100% {
+				transform: translateX(45%) rotateY(55deg) scale(0.85);
+			}
+		}
+
+		:global(.shelf-book__link) {
+			display: block;
+		}
+		:global(.shelf-book) {
+			scroll-snap-align: center;
+			position: relative;
+			z-index: 1;
+			view-timeline-name: --book-in-view;
+			view-timeline-axis: inline;
+			animation: adjust-z-index linear both;
+			animation-timeline: --book-in-view;
+			perspective: 40rem;
+		}
+		:global(.shelf-book__cover) {
+			width: 100%;
+			aspect-ratio: 115 / 180;
+			object-fit: cover;
+			display: block;
+			border-radius: 0.25rem 0.08rem 0.08rem 0.25rem;
+			background: #f3eee6;
+			transform-origin: center center;
+
+			animation: cover-flow linear both;
+			animation-timeline: --book-in-view;
+
+			box-shadow:
+				0 0.15rem 0.2rem rgba(0, 0, 0, 0.25),
+				inset 0.18rem 0 0.2rem rgba(0, 0, 0, 0.18);
+
+			transition:
+				transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+				box-shadow 0.3s ease;
+		}
+		:global(.shelf-book__placeholder) {
+			display: grid;
+			place-items: center;
+			text-align: center;
+			color: #6b655e;
+			font-size: 0.8rem;
+			padding: 0.5rem;
+		}
+
+		@media (hover: hover) {
+			:global(.shelf-book:hover .shelf-book__cover) {
+				transform: translateY(-18%) skew(2deg, -2deg) scale(1.12);
+				box-shadow:
+					0 0.8rem 1.2rem rgba(0, 0, 0, 0.28),
+					inset 0.18rem 0 0.2rem rgba(0, 0, 0, 0.18);
+			}
+
+			:global(.shelf-book:nth-of-type(even):hover .shelf-book__cover) {
+				transform: translateY(-18%) skew(-2deg, 2deg) scale(1.12);
+			}
+		}
+
+		:global(.shelf-line) {
+			position: relative;
+			height: 0;
+			border-bottom: 0.9rem solid #ffffff57;
+		}
+
+		:global(.shelf-line::before) {
+			content: "";
+			position: absolute;
+			top: 0.9rem;
+			left: -1rem;
+			width: calc(100% + 2rem);
+			height: 1.5rem;
+			background: linear-gradient(90deg, #d2aa82, #9b6f4d);
+			box-shadow:
+				0 -0.1rem 0.35rem rgba(0, 0, 0, 0.08),
+				0 0.65rem 1.1rem rgba(0, 0, 0, 0.28);
+		}
+
+		:global(.shelf-line::after) {
+			content: "";
+			position: absolute;
+			top: 2.3rem;
+			left: -0.6rem;
+			width: calc(100% + 1.2rem);
+			height: 3rem;
+			background: linear-gradient(
+				180deg,
+				rgba(86, 54, 31, 0.22),
+				rgba(86, 54, 31, 0)
+			);
+			clip-path: polygon(0 0, 100% 0, 97% 100%, 3% 100%);
+			pointer-events: none;
+		}
+
+		:global(.empty-shelf) {
+			margin: 0;
+			padding: 1rem;
+			border-radius: 1rem;
+			background: rgba(255, 255, 255, 0.55);
+			color: #6b655e;
+		}
+
+		@keyframes book-rise {
+			from {
+				opacity: 0;
+				transform: translateY(0.8rem);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+		@media (max-width: 40rem) {
+			.home-header {
+				flex-direction: column;
+				align-items: flex-start;
+			}
+			.search-form {
+				grid-template-columns: 1fr;
+			}
+		}
+		.continue-section {
+			margin-bottom: 2.5rem;
+		}
+
+		.continue-section h2 {
+			margin-bottom: 1rem;
+		}
+
+		:global(.continue-card) {
+			display: grid;
+			grid-template-columns: 6.5rem 1fr;
+			gap: 1.5rem;
+			align-items: center;
+			padding: 2rem;
+			border-radius: 1rem;
+			min-height: 12rem;
+			background: white;
+			box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.08);
+			text-decoration: none;
+			color: #000000;
+			/* color: inherit; */
+			transition:
+				transform 0.2s ease,
+				box-shadow 0.2s ease;
+		}
+		:global(.continue-card:hover) {
+			transform: translateY(-0.25rem);
+			box-shadow: 0 0.7rem 1.6rem rgba(0, 0, 0, 0.12);
+		}
+
+		:global(.continue-card img),
+		:global(.continue-placeholder) {
+			width: 6.5rem;
+			aspect-ratio: 2 / 3;
+			object-fit: cover;
+			border-radius: 0.5rem;
+			background: #f3eee6;
+		}
+
+		:global(.continue-placeholder) {
+			display: grid;
+			place-items: center;
+			font-size: 0.8rem;
+			color: #666;
+		}
+
+		:global(.continue-label) {
+			margin: 0 0 0.3rem;
+			color: #ff6b2c;
+			font-size: 0.85rem;
+			font-weight: 700;
+		}
+		:global(.continue-card p:nth-of-type(1)) {
+			margin-bottom: 1em;
+		}
+
+		:global(.continue-card h3) {
+			margin: 0 0 0.3rem;
+			line-height: 1.2;
+		}
+
+		:global(.continue-card p) {
+			margin: 0;
+		}
+		.reveal {
+			opacity: 0;
+			transform: translateY(2rem);
+			transition:
+				opacity 0.7s ease,
+				transform 0.7s ease;
+		}
+		.reveal.is-visible {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	</style>
+</MainLayout>

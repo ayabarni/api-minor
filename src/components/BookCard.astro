@@ -1,0 +1,155 @@
+---
+const { book } = Astro.props;
+const transitionName =`book-${book.key.replace(/^\//, "").replaceAll("/", "-")}`;
+---
+
+<div class="book-card">
+  <a href={`/book${book.key}`}>
+    {
+      book.cover_i && (
+        <img
+          src={`https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`}
+          alt={`Cover of ${book.title}`}
+          style={`view-transition-name: ${transitionName};`}
+          
+
+        />
+      )
+    }
+
+    <div class="book-card__content">
+      <h2>{book.title}</h2>
+      <p>{book.author_name?.[0] || "Unknown author"}</p>
+    </div>
+  </a>
+
+  
+  <select
+    class="shelf-select"
+    data-key={book.key}
+    data-title={book.title}
+    data-cover={book.cover_i || ""}
+    data-author={book.author_name?.[0] || "Unknown author"}
+  >
+    <option value="">Add to shelf</option>
+    <option value="want-to-read">Want to read</option>
+    <option value="currently-reading">Currently reading</option>
+    <option value="read">Read</option>
+    <option value="remove">Remove</option>
+  </select>
+</div>
+
+<script>
+  type ShelfBook = {
+    key: string;
+    title: string;
+    cover_i?: number;
+    author_name?: string[];
+    shelf: string;
+  };
+
+  const selects = document.querySelectorAll(".shelf-select");
+
+  selects.forEach((select) => {
+    const element = select as HTMLSelectElement;
+    const key = element.dataset.key;
+
+    if (!key) return;
+
+    const saved: ShelfBook[] = JSON.parse(
+      localStorage.getItem("shelfBooks") || "[]",
+    );
+
+    
+    const existing = saved.find((b) => b.key === key);
+    if (existing) {
+      element.value = existing.shelf;
+    }
+
+    element.addEventListener("change", () => {
+      const shelf = element.value;
+
+      let updated: ShelfBook[] = JSON.parse(
+        localStorage.getItem("shelfBooks") || "[]",
+      );
+
+    
+      if (shelf === "" || shelf === "remove") {
+        updated = updated.filter((b) => b.key !== key);
+        element.value = "";
+      } else {
+        const existingIndex = updated.findIndex((b) => b.key === key);
+
+        const newBook: ShelfBook = {
+          key,
+          title: element.dataset.title || "",
+          cover_i: element.dataset.cover
+            ? Number(element.dataset.cover)
+            : undefined,
+          author_name: [element.dataset.author || "Unknown author"],
+          shelf,
+        };
+
+        if (existingIndex !== -1) {
+          updated[existingIndex].shelf = shelf;
+        } else {
+          updated.push(newBook);
+        }
+      }
+
+      localStorage.setItem("shelfBooks", JSON.stringify(updated));
+    });
+  });
+</script>
+
+<style>
+ .book-card {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1px solid #d8d2c8;
+  border-radius: 0.9rem;
+  overflow: hidden;
+}
+
+.book-card a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.book-card img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.book-card__content {
+  padding: 0.75rem;
+}
+
+.book-card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.book-card p {
+  margin: 0;
+  color: #555;
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
+.shelf-select {
+  margin: auto 0.75rem 0.75rem;
+  width: calc(100% - 1.5rem);
+  padding: 0.55rem;
+  border-radius: 0.6rem;
+  border: 1px solid #d8d2c8;
+  background: white;
+  font: inherit;
+  font-size: 0.85rem;
+}
+</style>

@@ -1,0 +1,55 @@
+body {
+  margin: 0;
+  background: rgb(252 240 214);
+}
+
+.page {
+  width: min(1100px, 90%);
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.12s;
+  mix-blend-mode: normal;
+}
+::view-transition-group(*) {
+  animation-duration: 0.9s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(root) {
+  animation: page-out 0.35s ease both;
+}
+::view-transition-new(root) {
+  animation: page-in 0.45s both;
+}
+
+@keyframes page-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-0.75rem);
+    filter: blur(0.25rem);
+  }
+}
+@keyframes page-in {
+  from {
+    opacity: 1;
+    transform: translateY(1rem);
+    filter: blur(0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}

@@ -124,3 +124,115 @@ Bronen:
     * UI/UX
     * visuele kwaliteit en interactie
 
+## Week 3
+### Wat ik heb gedaan
+- Een werkende zoekfunctie toegevoegd met query parameters (`q`)  
+- De zoekpagina gescheiden van de homepage voor logischer gebruik  
+- Filters toegevoegd via categorieën:  
+  - Romance  
+  - Fantasy  
+  - History  
+  - Classics  
+- De homepage aangepast naar een duidelijkere structuur:  
+  - Search bar  
+  - Categorieën onder de search bar  
+  - Eigen bibliotheek / saved shelves  
+- Navigatie verbeterd tussen home en search  
+- Begonnen met Goodreads-geïnspireerde boekstatussen:  
+  - Currently Reading  
+  - Want to Read  
+  - Read  
+- localStorage  gebruikt om opgeslagen boeken te bewaren  
+- Eerste versie van boekenplanken (shelves) opgezet  
+
+### UX/UI keuzes
+- Zoekresultaten niet meer direct op de homepage tonen  
+- Home gebruiken als persoonlijke bibliotheek  
+- Search als aparte pagina voor ontdekken  
+- Categorieën direct zichtbaar maken voor snellere navigatie  
+
+### Waar ik tegenaan liep
+- Saved books namen styling niet automatisch over  
+- Problemen met layout en responsiveness  
+- Onlogische structuur toen alles nog op één pagina stond  
+![alt text](image.png)
+
+
+
+# Week 4
+## Wat ik heb gedaan
+
+### Verdere ontwikkeling van de bestaande basis
+Deze week heb ik verder gebouwd op de functionele versie van week 3.  
+De focus lag minder op “het werkt”, en meer op:
+### UX, visuele kwaliteit en gebruikerservaring.
+
+- De homepage visueel verder uitgewerkt richting een sterkere Goodreads / moderne library stijl  
+- Mobiele versie als hoofdprioriteit aangepakt  
+- Hero section toegevoegd met:
+  - achtergrondafbeelding
+  - sterkere introductietekst
+  - duidelijkere eerste indruk  
+- “Currently reading” prominenter gemaakt met laatst bekeken / laatst opgeslagen boek  
+- Shelf-secties visueel verbeterd  
+- Geëxperimenteerd met realistischere boekenplanken in plaats van simpele lijnen  
+- Scroll-driven / coverflow-achtige interacties getest voor boekenrijen  
+
+---
+
+## Boekdetailpagina uitgebreid
+- Detailpagina verder ontwikkeld van simpele boekinformatie naar rijkere ervaring  
+- 3D boekexperimenten toegevoegd met CSS:
+  - rug
+  - pagina’s
+  - achterkant
+  - schaduw  
+- Shelf status direct beheerbaar gemaakt vanuit detailpagina  
+- Share knop toegevoegd  
+- Responsive layout verbeterd voor mobiel en desktop  
+
+---
+
+## UX/UI keuzes
+### Deze week draaide vooral om:
+- Meer identiteit geven aan het project  
+- Meer focus op sfeer, interactie en visuele beleving  
+
+
+# Week 5
+
+## Wat ik heb gedaan
+
+### Laatste verbeteringen en afronding
+In deze week lag de focus op het afronden van het project en het verbeteren van de gebruikerservaring in detail.
+
+- Navigatie verbeterd door een “Back to search” knop toe te voegen  
+- Probleem opgelost waarbij de zoekresultaten verloren gingen bij terug navigeren  
+- Interactie van de “Continue reading” sectie verbeterd (klikbaar gemaakt)  
+- Layout van de “Continue reading” kaart aangepast voor betere leesbaarheid op desktop  
+
+---
+
+## Detailpagina verder uitgebreid
+- Visuele effecten toegevoegd gebaseerd op het genre van het boek  
+- Verschillende stijlen en animaties per categorie (romance, horror, fantasy, etc.) voor meer sfeer en beleving 
+- Animatie geoptimaliseerd zodat deze direct zichtbaar is en vloeiender aanvoelt  
+- Kleine UX verbeteringen toegepast op de detailpagina  
+
+---
+
+## Nieuwe feature: Related books
+- Dynamisch gerelateerde boeken opgehaald via de api  
+- Gebaseerd op het onderwerp (subject) van het huidige boek  
+- Weergave toegevoegd als horizontale lijst onder de detailpagina  
+- Klikbare kaarten toegevoegd voor directe navigatie  
+
+Bronnen:
+<!-- https://openlibrary.org/developers/api -->
+<!-- https://docs.astro.build/en/guides/routing/ -->
+<!-- https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API-->
+<!-- https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage-->
+<!-- https://piccalil.li/blog/some-practical-examples-of-view-transitions-to-elevate-your-ui/ -->
+<!-- https://cydstumpel.nl/a-practical-guide-to-the-css-view-transition-api/ -->
+
+

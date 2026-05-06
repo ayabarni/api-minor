@@ -1,0 +1,192 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import BookCard from "../components/BookCard.astro";
+
+const query = Astro.url.searchParams.get("q") || "";
+const subject = Astro.url.searchParams.get("subject") || "";
+
+let books: any[] = [];
+let apiUrl = "";
+
+if (query && subject) {
+  apiUrl = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}+subject:${encodeURIComponent(subject)}`;
+} else if (query) {
+  apiUrl = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`;
+} else if (subject) {
+  apiUrl = `https://openlibrary.org/search.json?subject=${encodeURIComponent(subject)}`;
+}
+
+if (apiUrl) {
+  const response = await fetch(apiUrl);
+  const data = await response.json();
+  books = data.docs?.slice(0, 12) || [];
+}
+
+const genres = [
+  { label: "Romance", value: "romance" },
+  { label: "Fantasy", value: "fantasy" },
+  { label: "History", value: "history" },
+  { label: "Classics", value: "classics" },
+];
+---
+
+<MainLayout title="Search books">
+  <section class="search-page-header">
+    <a class="back-link" href="/">← Back to library</a>
+
+    <h1>Find your next book</h1>
+
+    <form class="search-form" action="/search" method="GET">
+      <input
+        type="search"
+        name="q"
+        value={query}
+        placeholder="Title, author, or topic"
+      />
+
+      {subject && <input type="hidden" name="subject" value={subject} />}
+
+      <button type="submit">Search</button>
+    </form>
+
+    <div class="genre-links">
+      {genres.map((genre) => (
+        <a
+          class={subject === genre.value ? "active" : ""}
+          href={`/search?subject=${genre.value}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
+        >
+          {genre.label}
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="books-section">
+    {
+      query || subject ? (
+        <>
+          <h2>
+            {query && subject
+              ? `Results for "${query}" in ${subject}`
+              : query
+                ? `Results for "${query}"`
+                : `Books in ${subject}`}
+          </h2>
+
+          {books.length > 0 ? (
+            <div class="books-grid">
+              {books.map((book: any) => (
+                <BookCard book={book} />
+              ))}
+            </div>
+          ) : (
+            <p>No books found.</p>
+          )}
+        </>
+      ) : (
+        <p class="empty-state">Search for a book or choose a category.</p>
+      )
+    }
+  </section>
+
+  <style>
+    main {
+      padding: 1rem;
+    }
+    .page section {
+      margin-bottom: 2rem;
+    }
+    .search-page-header {
+      display: grid;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .back-link {
+      color: inherit;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .search-page-header h1 {
+      margin: 0;
+      font-size: clamp(2rem, 10vw, 4rem);
+      line-height: 0.95;
+    }
+
+    .search-form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .search-form input {
+      width: 100%;
+      padding: 1rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid #d8d2c8;
+      font: inherit;
+    }
+
+    .search-form button {
+      padding: 1rem 1.2rem;
+      border-radius: 999px;
+      border: none;
+      background: #ff6b2c;
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .genre-links {
+      display: flex;
+      gap: 0.6rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+    }
+
+    .genre-links a {
+      flex: 0 0 auto;
+      padding: 0.6rem 0.95rem;
+      border-radius: 999px;
+      border: 1px solid #d8d2c8;
+      background: white;
+      color: inherit;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .genre-links a.active {
+      background: #ff6b2c;
+      color: white;
+      border-color: #ff6b2c;
+    }
+
+    .books-section h2 {
+      margin-bottom: 1rem;
+    }
+
+    .books-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+    }
+
+    .empty-state {
+      padding: 1rem;
+      border-radius: 1rem;
+      background: white;
+      color: #5f5a52;
+    }
+
+    @media (min-width: 48rem) {
+      .search-form {
+        grid-template-columns: 1fr auto;
+        max-width: 44rem;
+      }
+    }
+  </style>
+</MainLayout>
+
+
