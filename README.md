@@ -233,11 +233,17 @@ In deze week lag de focus op het afronden van het project en het verbeteren van 
 - Klikbare kaarten toegevoegd voor directe navigatie  
 
 Bronnen:
-<!-- https://openlibrary.org/developers/api -->
-<!-- https://docs.astro.build/en/guides/routing/ -->
-<!-- https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API-->
-<!-- https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage-->
-<!-- https://piccalil.li/blog/some-practical-examples-of-view-transitions-to-elevate-your-ui/ -->
-<!-- https://cydstumpel.nl/a-practical-guide-to-the-css-view-transition-api/ -->
+- https://openlibrary.org/developers/api 
+- https://docs.astro.build/en/guides/routing/ 
+- https://chatgpt.com/share/69fc9856-2b30-8391-a0f5-52cd73248c6b
+- ![alt text](image-1.png)
+- https://docs.astro.build/en/guides/typescript/?utm_source=.com
+- https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+- https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
+- https://cydstumpel.nl/a-practical-guide-to-the-css-view-transition-api/ 
+- https://piccalil.li/blog/some-practical-examples-of-view-transitions-to-elevate-your-ui/ 
+
+
+
 
 
